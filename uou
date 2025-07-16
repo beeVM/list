@@ -1,0 +1,1034 @@
+#INFO: **** input file is /home/noob/uin ****
+#INFO: **** input file is /home/noob/t ****
+#INFO: **** input file is /home/noob/test.py ****
+#!/usr/bin/env python
+
+
+import numpy as np
+from pyscf import lib,gto,scf,adc,ucc
+from pyscf.ucc import ucc,ucc_ppt,ucc_cvs
+
+mol = gto.Mole()
+mol.unit = 'Bohr'
+mol.atom ='''
+    O  0.0   0.0             0.0
+    H  0.0   1.429937284    -1.107175113
+    H  0.0  -1.429937284    -1.107175113
+'''
+mol.basis = '6-31G'
+
+
+mol.spin = 0
+mol.charge = 0
+mol.verbose = 5
+mol.symmetry = 1
+#mol.cart = True
+mol.build()
+
+#Hartree-Fock
+
+mf = scf.RHF(mol)
+mf.max_cycle = 1000
+mf.conv_tol = 1e-10
+mf.conv_tol_grad = 1e-9
+mf.verbose = 7
+#mf.chkfile='scf.chk'
+mf.kernel()
+mf.analyze()
+
+##transform RHF to GHF
+nmf = scf.addons.convert_to_ghf(mf)
+#
+##qUCCSD
+mycc = ucc.UnitaryGCCSD(nmf)
+mycc.method = "UCC3-s"
+#mycc.method = "UCC3"
+mycc.verbose = 5
+#mycc.max_cycle = 100
+#mycc.conv_tol = 1e-8
+#mycc.conv_tol_normt = 1e-8
+##mycc.diis_file = 'gquccsd.diis.h5'
+#ecc,t1,t2 = mycc.kernel()
+emp2,mycc.t1,mycc.t2,mycc.t2_2 = mycc.pt_amps()
+#
+#IP
+#mycc.max_cycle = 100
+#mycc.conv_tol = 1e-5
+#mycc.conv_tol_normt = 1e-5
+mycc.verbose = 5
+e,v = mycc.ipccsd_cvs(nroots=15,ncore=2)
+# 
+###EA
+##mycc.max_cycle = 100
+##mycc.conv_tol = 1e-5
+##mycc.conv_tol_normt = 1e-5
+##mycc.verbose = 5
+##e,v = mycc.eaccsd(nroots=100)
+##  
+#
+#for i in e :
+#    print("%f" %(i*27.2113819)) 
+#myadc = adc.ADC(mf)
+#myadc.ncvs = 2
+#myadc.method = "adc(3)"
+#myadc.method_type = "ip"
+#eea,vea,pea,xea = myadc.kernel(nroots=10)
+#myadc.analyze()
+#myadc = adc.ADC(mf)
+#myadc.method = "adc(3)"
+#myadc.method_type = "ip"
+#eea,vea,pea,xea = myadc.kernel(nroots=2)
+
+
+for i in e :
+    print("%f" %(i*27.2113819))
+
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='noob', release='6.8.0-51-generic', version='#52-Ubuntu SMP PREEMPT_DYNAMIC Thu Dec  5 13:09:44 UTC 2024', machine='x86_64')  Threads 12
+Python 3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:27:36) [GCC 11.2.0]
+numpy 1.26.4  scipy 1.13.1  h5py 3.11.0
+Date: Fri Jul 11 17:33:41 2025
+PySCF version 2.8.0
+PySCF path  /home/noob/pyscf/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 5
+[INPUT] max_memory = 4000 
+[INPUT] num. atoms = 3
+[INPUT] num. electrons = 10
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry 1 subgroup None
+[INPUT] Mole.unit = Bohr
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 H      0.000000000000   0.756690223738  -0.585891838297 AA    0.000000000000   1.429937284000  -1.107175113000 Bohr   0.0
+[INPUT]  3 H      0.000000000000  -0.756690223738  -0.585891838297 AA    0.000000000000  -1.429937284000  -1.107175113000 Bohr   0.0
+[INPUT] ---------------- BASIS SET ---------------- 
+[INPUT] l, kappa, [nprim/nctr], expnt,             c_1 c_2 ...
+[INPUT] H
+[INPUT] 0    0    [3    /1   ]  18.731137         0.0334946
+                                2.8253937         0.23472695
+                                0.6401217         0.81375733
+[INPUT] 0    0    [1    /1   ]  0.1612778            1
+[INPUT] O
+[INPUT] 0    0    [6    /1   ]  5484.6717         0.0018311
+                                825.23495         0.0139501
+                                188.04696         0.0684451
+                                52.9645           0.2327143
+                                16.89757          0.470193
+                                5.7996353         0.3585209
+[INPUT] 0    0    [3    /1   ]  15.539616         -0.1107775
+                                3.5999336         -0.1480263
+                                1.0137618         1.130767
+[INPUT] 0    0    [1    /1   ]  0.2700058            1
+[INPUT] 1    0    [3    /1   ]  15.539616         0.0708743
+                                3.5999336         0.3397528
+                                1.0137618         0.7271586
+[INPUT] 1    0    [1    /1   ]  0.2700058            1
+
+nuclear repulsion = 9.19693193272908
+point group symmetry = C2v
+symmetry origin: [ 0.          0.         -0.22143502]
+symmetry axis x: [-1. -0. -0.]
+symmetry axis y: [0. 1. 0.]
+symmetry axis z: [0. 0. 1.]
+num. orbitals of irrep A1 = 7
+num. orbitals of irrep B1 = 2
+num. orbitals of irrep B2 = 4
+number of shells = 9
+number of NR pGTOs = 30
+number of NR cGTOs = 13
+basis = 6-31G
+ecp = {}
+CPU time:         0.22
+
+
+******** <class 'pyscf.scf.hf_symm.SymAdaptedRHF'> ********
+method = SymAdaptedRHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-10
+SCF conv_tol_grad = 1e-09
+SCF max_cycles = 1000
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /tmp/tmpl6as12tq
+max_memory 4000 MB (current use 110 MB)
+Freeze 0 electrons in irreps []
+    10 free electrons in irreps A1 B1 B2
+cond(S) = 50.891300075940165
+Initial guess from minao.
+Nelec from initial guess = 9.984665906024038
+E1 = -121.59113816788413  E_coul = 36.55830804528817
+init E= -75.8358981898669
+    CPU time for initialize scf      0.31 sec, wall time      0.03 sec
+HOMO (B1) = -0.474832712495491  LUMO (A1) = 0.124277741279459
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.587495823104545  LUMO = 0.124277741279459
+   mo_energy = [-20.7988377   -1.61931571  -0.58749582   0.12427774   1.05212003
+   1.15882871   1.61262082]
+B1 nocc = 1  HOMO = -0.474832712495491  LUMO = 1.05042795862535
+   mo_energy = [-0.47483271  1.05042796]
+B2 nocc = 1  HOMO = -0.750540493715519  LUMO = 0.230699618821699
+   mo_energy = [-0.75054049  0.23069962  1.01979819  1.24247496]
+E1 = -124.01398620196723  E_coul = 38.87118655388098
+cycle= 1 E= -75.9458677153572  delta_E= -0.11  |g|= 0.419  |ddm|= 1.19
+    CPU time for cycle= 1      0.03 sec, wall time      0.00 sec
+diis-norm(errvec)=0.592621
+diis-c [-0.35119945  1.        ]
+HOMO (B1) = -0.414613733366903  LUMO (A1) = 0.209256878250433
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.482110995080479  LUMO = 0.209256878250433
+   mo_energy = [-20.31778614  -1.28433686  -0.482111     0.20925688   1.20182513
+   1.2834003    1.74446959]
+B1 nocc = 1  HOMO = -0.414613733366903  LUMO = 1.23840680835313
+   mo_energy = [-0.41461373  1.23840681]
+B2 nocc = 1  HOMO = -0.661964278743039  LUMO = 0.304007840185485
+   mo_energy = [-0.66196428  0.30400784  1.06520304  1.44727392]
+E1 = -122.3069208295755  E_coul = 37.13519145746225
+cycle= 2 E= -75.9747974393842  delta_E= -0.0289  |g|= 0.226  |ddm|= 0.406
+    CPU time for cycle= 2      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=0.319928
+diis-c [-0.0169512   0.33575838  0.66424162]
+HOMO (B1) = -0.503800465731255  LUMO (A1) = 0.198102949263256
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.564892410248625  LUMO = 0.198102949263256
+   mo_energy = [-20.5789594   -1.36469809  -0.56489241   0.19810295   1.17568443
+   1.21274685   1.68890098]
+B1 nocc = 1  HOMO = -0.503800465731255  LUMO = 1.16241153338466
+   mo_energy = [-0.50380047  1.16241153]
+B2 nocc = 1  HOMO = -0.721154960278916  LUMO = 0.292229216567164
+   mo_energy = [-0.72115496  0.29222922  1.04968117  1.37092017]
+E1 = -123.02005805006954  E_coul = 37.83930839665509
+cycle= 3 E= -75.9838177206854  delta_E= -0.00902  |g|= 0.022  |ddm|= 0.142
+    CPU time for cycle= 3      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=0.0311068
+diis-c [-2.11753244e-04 -7.84139945e-02 -6.91856817e-02  1.14759968e+00]
+HOMO (B1) = -0.499915718387493  LUMO (A1) = 0.2039906510432
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560038894694705  LUMO = 0.2039906510432
+   mo_energy = [-20.5596036   -1.35599191  -0.56003889   0.20399065   1.18813282
+   1.21615086   1.69653332]
+B1 nocc = 1  HOMO = -0.499915718387493  LUMO = 1.16577292078077
+   mo_energy = [-0.49991572  1.16577292]
+B2 nocc = 1  HOMO = -0.711002696208286  LUMO = 0.299674024039647
+   mo_energy = [-0.7110027   0.29967402  1.05787305  1.37963637]
+E1 = -122.98182961964375  E_coul = 37.80091161631933
+cycle= 4 E= -75.9839860705953  delta_E= -0.000168  |g|= 0.00349  |ddm|= 0.0222
+    CPU time for cycle= 4      0.03 sec, wall time      0.00 sec
+diis-norm(errvec)=0.00493753
+diis-c [-8.42378975e-06  2.35110481e-02  1.25683596e-02 -3.72760091e-01
+  1.33668068e+00]
+HOMO (B1) = -0.501204261876051  LUMO (A1) = 0.203857336562277
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.56056475581914  LUMO = 0.203857336562277
+   mo_energy = [-20.56030171  -1.35646132  -0.56056476   0.20385734   1.18786794
+   1.21563502   1.69615647]
+B1 nocc = 1  HOMO = -0.501204261876051  LUMO = 1.1646014929822
+   mo_energy = [-0.50120426  1.16460149]
+B2 nocc = 1  HOMO = -0.710326286202972  LUMO = 0.299878088100923
+   mo_energy = [-0.71032629  0.29987809  1.05764838  1.37957423]
+E1 = -122.98343602556726  E_coul = 37.80251207092043
+cycle= 5 E= -75.9839920219178  delta_E= -5.95e-06  |g|= 0.000534  |ddm|= 0.00503
+    CPU time for cycle= 5      0.03 sec, wall time      0.00 sec
+diis-norm(errvec)=0.000755291
+diis-c [-5.47135012e-08 -2.36797293e-03 -8.22864331e-04  3.49203930e-02
+ -2.74087128e-01  1.24235757e+00]
+HOMO (B1) = -0.501406444904102  LUMO (A1) = 0.203828485005244
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560683147928947  LUMO = 0.203828485005244
+   mo_energy = [-20.56036742  -1.3565402   -0.56068315   0.20382849   1.18783782
+   1.21558201   1.69613285]
+B1 nocc = 1  HOMO = -0.501406444904102  LUMO = 1.16444830814951
+   mo_energy = [-0.50140644  1.16444831]
+B2 nocc = 1  HOMO = -0.71032924840356  LUMO = 0.299938998534634
+   mo_energy = [-0.71032925  0.299939    1.05764909  1.37962556]
+E1 = -122.98330378953592  E_coul = 37.80237967595883
+cycle= 6 E= -75.983992180848  delta_E= -1.59e-07  |g|= 5.34e-05  |ddm|= 0.000938
+    CPU time for cycle= 6      0.03 sec, wall time      0.00 sec
+diis-norm(errvec)=7.54987e-05
+diis-c [-1.64047853e-09  6.07932840e-04  2.76882244e-04 -8.69574727e-03
+  7.86700784e-02 -4.04790411e-01  1.33393126e+00]
+HOMO (B1) = -0.501404946177227  LUMO (A1) = 0.203826820050447
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560686662249074  LUMO = 0.203826820050447
+   mo_energy = [-20.56035405  -1.35652745  -0.56068666   0.20382682   1.18783084
+   1.21558294   1.69613812]
+B1 nocc = 1  HOMO = -0.501404946177227  LUMO = 1.16444808509097
+   mo_energy = [-0.50140495  1.16444809]
+B2 nocc = 1  HOMO = -0.710313963559406  LUMO = 0.299939897698312
+   mo_energy = [-0.71031396  0.2999399   1.05764596  1.37962874]
+E1 = -122.98329306970278  E_coul = 37.802368954474844
+cycle= 7 E= -75.9839921824989  delta_E= -1.65e-09  |g|= 1.24e-05  |ddm|= 9.8e-05
+    CPU time for cycle= 7      0.03 sec, wall time      0.00 sec
+diis-norm(errvec)=1.75269e-05
+diis-c [-4.45919501e-11 -2.45910906e-04 -1.08128856e-04  3.29778095e-03
+ -3.16322603e-02  1.72099053e-01 -7.00379431e-01  1.55696890e+00]
+HOMO (B1) = -0.501400996171275  LUMO (A1) = 0.203826645959751
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560687904698151  LUMO = 0.203826645959751
+   mo_energy = [-20.56035097  -1.35652557  -0.5606879    0.20382665   1.18783162
+   1.21558458   1.69614007]
+B1 nocc = 1  HOMO = -0.501400996171275  LUMO = 1.164451752338
+   mo_energy = [-0.501401    1.16445175]
+B2 nocc = 1  HOMO = -0.710314063652844  LUMO = 0.299941752620049
+   mo_energy = [-0.71031406  0.29994175  1.05764787  1.37963227]
+E1 = -122.98328748603815  E_coul = 37.802363370690294
+cycle= 8 E= -75.9839921826188  delta_E= -1.2e-10  |g|= 1.53e-06  |ddm|= 3.19e-05
+    CPU time for cycle= 8      0.03 sec, wall time      0.00 sec
+diis-norm(errvec)=2.16442e-06
+diis-c [-8.89258003e-13  9.86237219e-06  3.62125341e-06 -7.38950661e-05
+  1.06381279e-03 -7.65049857e-03  3.86137558e-02 -1.89602196e-01
+  1.15763554e+00]
+HOMO (B1) = -0.50140099783832  LUMO (A1) = 0.203826339876565
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688186914287  LUMO = 0.203826339876565
+   mo_energy = [-20.56035121  -1.3565256   -0.56068819   0.20382634   1.18783096
+   1.21558431   1.6961398 ]
+B1 nocc = 1  HOMO = -0.50140099783832  LUMO = 1.16445162325141
+   mo_energy = [-0.501401    1.16445162]
+B2 nocc = 1  HOMO = -0.710313266377775  LUMO = 0.299941493064495
+   mo_energy = [-0.71031327  0.29994149  1.05764734  1.37963196]
+E1 = -122.98328942441748  E_coul = 37.80236530906817
+cycle= 9 E= -75.9839921826202  delta_E= -1.45e-12  |g|= 1.68e-07  |ddm|= 3.96e-06
+    CPU time for cycle= 9      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=2.37358e-07
+diis-c [-3.30021174e-15  1.28917905e+00 -5.63195408e-09 -1.68847933e-05
+  4.52056097e-05  2.86041815e-04 -2.60957908e-03  3.21116588e-02
+ -3.18995486e-01]
+HOMO (B1) = -0.501400988173876  LUMO (A1) = 0.20382632689019
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688229563723  LUMO = 0.20382632689019
+   mo_energy = [-20.56035124  -1.35652564  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400988173876  LUMO = 1.16445164182746
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.710313274682223  LUMO = 0.299941506395297
+   mo_energy = [-0.71031327  0.29994151  1.05764734  1.37963196]
+E1 = -122.9832894340849  E_coul = 37.80236531873554
+cycle= 10 E= -75.9839921826203  delta_E= -4.26e-14  |g|= 1.17e-08  |ddm|= 2.84e-07
+    CPU time for cycle= 10      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=1.65399e-08
+Linear dependence found in DIIS error vectors.
+diis-c [-7.35105017e-16  4.67294461e-01  6.40361679e-01 -6.20539818e-06
+  1.51053676e-05  1.17012694e-04 -1.01074454e-03  1.22080344e-02
+ -1.18979342e-01]
+HOMO (B1) = -0.501400989751493  LUMO (A1) = 0.203826326592415
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688231403441  LUMO = 0.203826326592415
+   mo_energy = [-20.56035125  -1.35652564  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400989751493  LUMO = 1.16445164047003
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.710313275808588  LUMO = 0.299941505832913
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.98328944111105  E_coul = 37.80236532576179
+cycle= 11 E= -75.9839921826202  delta_E= 9.95e-14  |g|= 5.75e-09  |ddm|= 1.32e-08
+    CPU time for cycle= 11      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=8.13021e-09
+Linear dependence found in DIIS error vectors.
+diis-c [-8.40983929e-17 -1.83117065e-02  5.06559298e-01  5.11768146e-01
+ -2.00704987e-06  1.53614674e-05 -7.87314956e-05  4.28784458e-04
+ -3.79145594e-04]
+HOMO (B1) = -0.501400990740734  LUMO (A1) = 0.203826326527379
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688232581311  LUMO = 0.203826326527379
+   mo_energy = [-20.56035125  -1.35652564  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400990740734  LUMO = 1.16445163961592
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.710313276440884  LUMO = 0.299941505579362
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.98328944518795  E_coul = 37.80236532983858
+cycle= 12 E= -75.9839921826203  delta_E= -1.14e-13  |g|= 1.95e-09  |ddm|= 9.93e-09
+    CPU time for cycle= 12      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=2.75309e-09
+Linear dependence found in DIIS error vectors.
+diis-c [-1.62778591e-16 -5.78478632e-03  3.32835622e-01  3.35724608e-01
+  3.38144561e-01  1.11411476e-06 -6.42138867e-06  2.59299994e-04
+ -1.17399749e-03]
+HOMO (B1) = -0.501400990755254  LUMO (A1) = 0.203826326531681
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688232635067  LUMO = 0.203826326531681
+   mo_energy = [-20.56035125  -1.35652565  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400990755254  LUMO = 1.16445163959774
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.710313276549883  LUMO = 0.29994150553776
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.9832894451423  E_coul = 37.80236532979295
+cycle= 13 E= -75.9839921826203  delta_E= 1.42e-14  |g|= 1.52e-09  |ddm|= 1.37e-09
+    CPU time for cycle= 13      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=2.15072e-09
+Linear dependence found in DIIS error vectors.
+diis-c [-6.01821420e-17 -7.75772777e-03  2.49440135e-01  2.51687285e-01
+  2.53567425e-01  2.53415110e-01 -1.17702727e-06  1.75044368e-04
+ -5.26094101e-04]
+HOMO (B1) = -0.501400990820605  LUMO (A1) = 0.203826326562108
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688232706655  LUMO = 0.203826326562108
+   mo_energy = [-20.56035125  -1.35652565  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400990820605  LUMO = 1.16445163954024
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.71031327652182  LUMO = 0.29994150557595
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.9832894450879  E_coul = 37.8023653297386
+cycle= 14 E= -75.9839921826202  delta_E= 4.26e-14  |g|= 1.25e-09  |ddm|= 9.08e-10
+    CPU time for cycle= 14      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=1.76613e-09
+Linear dependence found in DIIS error vectors.
+diis-c [-8.70533123e-16 -6.11735521e-03  1.97362902e-01  2.00410465e-01
+  2.02799688e-01  2.02802899e-01  2.03040197e-01  1.38804946e-04
+ -4.37601300e-04]
+HOMO (B1) = -0.501400990775944  LUMO (A1) = 0.20382632658322
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688232689787  LUMO = 0.20382632658322
+   mo_energy = [-20.56035125  -1.35652565  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400990775944  LUMO = 1.16445163957432
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.710313276507552  LUMO = 0.299941505586836
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.98328944470998  E_coul = 37.80236532936065
+cycle= 15 E= -75.9839921826203  delta_E= -2.84e-14  |g|= 1.06e-09  |ddm|= 5.37e-10
+    CPU time for cycle= 15      0.05 sec, wall time      0.00 sec
+diis-norm(errvec)=1.50239e-09
+Linear dependence found in DIIS error vectors.
+diis-c [-1.16553351e-16 -7.98981207e-03  1.63396625e-01  1.66733047e-01
+  1.69231322e-01  1.69255329e-01  1.69473573e-01  1.69527350e-01
+  3.72565638e-04]
+HOMO (B1) = -0.501400990830632  LUMO (A1) = 0.20382632657371
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688232891804  LUMO = 0.20382632657371
+   mo_energy = [-20.56035125  -1.35652565  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400990830632  LUMO = 1.16445163952635
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.71031327655987  LUMO = 0.299941505601081
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.98328944601985  E_coul = 37.802365330670646
+cycle= 16 E= -75.9839921826201  delta_E= 1.42e-13  |g|= 1.11e-09  |ddm|= 7.3e-10
+    CPU time for cycle= 16      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=1.5668e-09
+Linear dependence found in DIIS error vectors.
+diis-c [ 2.13337445e-16 -2.06055079e-03  1.39568616e-01  1.42167920e-01
+  1.43959456e-01  1.43950175e-01  1.44082379e-01  1.44086410e-01
+  1.44245594e-01]
+HOMO (B1) = -0.50140099074767  LUMO (A1) = 0.203826326587655
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.56068823281109  LUMO = 0.203826326587655
+   mo_energy = [-20.56035125  -1.35652565  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.50140099074767  LUMO = 1.16445163958991
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.710313276527848  LUMO = 0.29994150560915
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.98328944533618  E_coul = 37.80236532998686
+cycle= 17 E= -75.9839921826202  delta_E= -1.14e-13  |g|= 1.01e-09  |ddm|= 2.62e-10
+    CPU time for cycle= 17      0.04 sec, wall time      0.00 sec
+diis-norm(errvec)=1.42157e-09
+Linear dependence found in DIIS error vectors.
+diis-c [-2.89052492e-16  1.25000000e-01  1.25000000e-01  1.25000000e-01
+  1.25000000e-01  1.25000000e-01  1.25000000e-01  1.25000000e-01
+  1.25000000e-01]
+HOMO (B1) = -0.501400990743411  LUMO (A1) = 0.20382632660385
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688232778995  LUMO = 0.20382632660385
+   mo_energy = [-20.56035125  -1.35652565  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400990743411  LUMO = 1.16445163959085
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.710313276538775  LUMO = 0.299941505607225
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.98328944515939  E_coul = 37.80236532981011
+cycle= 18 E= -75.9839921826202  delta_E= 2.84e-14  |g|= 9.34e-10  |ddm|= 3.59e-10
+    CPU time for cycle= 18      0.03 sec, wall time      0.00 sec
+HOMO (B1) = -0.501400990596595  LUMO (A1) = 0.20382632666959
+irrep_nelec = [6, 2, 2]
+A1 nocc = 3  HOMO = -0.560688232678873  LUMO = 0.20382632666959
+   mo_energy = [-20.56035125  -1.35652564  -0.56068823   0.20382633   1.18783095
+   1.21558428   1.6961398 ]
+B1 nocc = 1  HOMO = -0.501400990596595  LUMO = 1.16445163970932
+   mo_energy = [-0.50140099  1.16445164]
+B2 nocc = 1  HOMO = -0.710313276463996  LUMO = 0.299941505637492
+   mo_energy = [-0.71031328  0.29994151  1.05764734  1.37963196]
+E1 = -122.98328944345107  E_coul = 37.80236532810175
+Extra cycle  E= -75.9839921826202  delta_E= -2.84e-14  |g|= 4.24e-10  |ddm|= 2.03e-09
+    CPU time for scf_cycle      0.98 sec, wall time      0.08 sec
+    CPU time for SCF      0.99 sec, wall time      0.08 sec
+converged SCF energy = -75.9839921826202
+**** SCF Summaries ****
+Total Energy =                         -75.983992182620241
+Nuclear Repulsion Energy =               9.196931932729077
+One-electron Energy =                 -122.983289443451071
+Two-electron Energy =                   37.802365328101750
+Wave-function symmetry = A1
+occupancy for each irrep:     A1   B1   B2
+                               3    1    1
+**** MO energy ****
+MO #1 (A1 #1), energy= -20.5603512480371 occ= 2
+MO #2 (A1 #2), energy= -1.35652564499308 occ= 2
+MO #3 (B2 #1), energy= -0.710313276463996 occ= 2
+MO #4 (A1 #3), energy= -0.560688232678873 occ= 2
+MO #5 (B1 #1), energy= -0.501400990596595 occ= 2
+MO #6 (A1 #4), energy= 0.20382632666959 occ= 0
+MO #7 (B2 #2), energy= 0.299941505637492 occ= 0
+MO #8 (B2 #3), energy= 1.05764734224227 occ= 0
+MO #9 (B1 #2), energy= 1.16445163970932 occ= 0
+MO #10 (A1 #5), energy= 1.18783095276124 occ= 0
+MO #11 (A1 #6), energy= 1.21558428176877 occ= 0
+MO #12 (B2 #4), energy= 1.3796319619498 occ= 0
+MO #13 (A1 #7), energy= 1.6961397952082 occ= 0
+ ** MO coefficients (expansion on meta-Lowdin AOs) **
+               #1(A1 #1) #2(A1 #2) #3(B2 #1) #4(A1 #3) #5(B1 #1)
+0 O 1s           1.00000  -0.00092   0.00000   0.00084   0.00000
+0 O 2s           0.00085   0.84106   0.00000   0.34389   0.00000
+0 O 3s          -0.00152  -0.00197   0.00000   0.04073  -0.00000
+0 O 2px          0.00000   0.00000   0.00000  -0.00000   0.99901
+0 O 2py         -0.00000   0.00000   0.81001   0.00000  -0.00000
+0 O 2pz         -0.00124  -0.16606  -0.00000   0.89728  -0.00000
+0 O 3px         -0.00000   0.00000  -0.00000  -0.00000   0.04445
+0 O 3py          0.00000  -0.00000  -0.04531  -0.00000  -0.00000
+0 O 3pz          0.00126   0.00835  -0.00000   0.02482   0.00000
+1 H 1s           0.00007   0.35847   0.40913  -0.18959   0.00000
+1 H 2s           0.00051  -0.06309  -0.05937   0.03514   0.00000
+2 H 1s           0.00007   0.35847  -0.40913  -0.18959  -0.00000
+2 H 2s           0.00051  -0.06309   0.05937   0.03514  -0.00000
+               #6(A1 #4) #7(B2 #2) #8(B2 #3) #9(B1 #2) #10(A1 #5)
+0 O 1s          -0.00013  -0.00000  -0.00000   0.00000   0.00140
+0 O 2s          -0.32679   0.00000  -0.00000  -0.00000  -0.23150
+0 O 3s          -0.17054  -0.00000  -0.00000   0.00000  -0.07842
+0 O 2px          0.00000   0.00000   0.00000  -0.04445   0.00000
+0 O 2py         -0.00000  -0.43930  -0.33628   0.00000   0.00000
+0 O 2pz          0.32149  -0.00000   0.00000   0.00000   0.24592
+0 O 3px         -0.00000   0.00000  -0.00000   0.99901   0.00000
+0 O 3py         -0.00000  -0.15291  -0.42472   0.00000   0.00000
+0 O 3pz          0.10623   0.00000  -0.00000  -0.00000  -0.38970
+1 H 1s           0.51451   0.48401   0.22982  -0.00000   0.23508
+1 H 2s           0.33170   0.39693  -0.54813   0.00000  -0.55560
+2 H 1s           0.51451  -0.48401  -0.22982   0.00000   0.23508
+2 H 2s           0.33170  -0.39693   0.54813  -0.00000  -0.55560
+               #11(A1 #6) #12(B2 #4) #13(A1 #7)
+0 O 1s          -0.00032  -0.00000   0.00174
+0 O 2s          -0.09879  -0.00000  -0.06488
+0 O 3s           0.24964  -0.00000   0.94909
+0 O 2px         -0.00000   0.00000   0.00000
+0 O 2py          0.00000  -0.19446   0.00000
+0 O 2pz          0.05336   0.00000   0.02520
+0 O 3px          0.00000  -0.00000   0.00000
+0 O 3py          0.00000   0.89117  -0.00000
+0 O 3pz          0.88076  -0.00000  -0.24582
+1 H 1s           0.07230   0.21338   0.10174
+1 H 2s          -0.26352  -0.19614   0.08137
+2 H 1s           0.07230  -0.21338   0.10174
+2 H 2s          -0.26352   0.19614   0.08137
+ ** Mulliken pop on meta-lowdin orthogonal AOs  **
+ ** Mulliken pop  **
+pop of  0 O 1s            1.99999
+pop of  0 O 2s            1.65130
+pop of  0 O 3s            0.00333
+pop of  0 O 2px           1.99605
+pop of  0 O 2py           1.31224
+pop of  0 O 2pz           1.66537
+pop of  0 O 3px           0.00395
+pop of  0 O 3py           0.00411
+pop of  0 O 3pz           0.00137
+pop of  1 H 1s            0.66366
+pop of  1 H 2s            0.01748
+pop of  2 H 1s            0.66366
+pop of  2 H 2s            0.01748
+ ** Mulliken atomic charges  **
+charge of    0O =     -0.63771
+charge of    1H =      0.31885
+charge of    2H =      0.31885
+Dipole moment(X, Y, Z, Debye):  0.00000,  0.00000, -2.63036
+Converting <class 'pyscf.scf.hf_symm.SymAdaptedRHF'> to GHF
+init t2, mp2 energy = -0.128778547822479
+
+******** <class 'pyscf.ucc.ucc_ppt.EOMIP_CVS'> ********
+max_space = 20
+max_cycle = 50
+conv_tol = 1e-07
+partition = None
+max_memory 4000 MB (current use 128 MB)
+jieguo: True
+True
+True
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+davidson 0 15  |r|= 1.53  e= [ 1.29569831  1.29569831  1.3084127   1.3084127   1.30970541  1.30970541
+ 20.57583759 20.57583759 21.16207045 21.30921311 21.30921311 21.37484404
+ 21.37484404 21.38652942 21.38652942]  max|de|= 21.4  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+davidson 1 30  |r|= 10.1  e= [ 1.27248379  1.27248379  1.29024405  1.29024405  1.30103968  1.30103968
+  2.28559505  2.28559505  2.32349438  2.32349438  3.50686906  5.15675167
+  5.15675167 14.37340284 14.37340284]  max|de|= 14.4  lindep= 0.999
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    1     ->     0 
+    0     ->     1 
+    5     ->     2 
+    4     ->     3 
+    3     ->     4 
+    2     ->     5 
+   10     ->     6 
+   11     ->     7 
+   12     ->     8 
+    7     ->     9 
+    6     ->    10 
+    8     ->    11 
+    9     ->    12 
+   11     ->    13 
+   12     ->    14 
+davidson 2 45  |r|= 1.33  e= [1.27150001 1.27150001 1.27616153 1.27616153 1.2892394  1.2892394
+ 1.33509053 2.10676222 2.10676222 2.1206731  2.1206731  2.26552621
+ 2.26552621 2.31066647 2.31066647]  max|de|= -3.05  lindep= 0.969
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    8     ->     7 
+    7     ->     8 
+   11     ->     9 
+   12     ->    10 
+    9     ->    11 
+   10     ->    12 
+davidson 3 60  |r|= 1.52  e= [1.27146209 1.27146209 1.27451836 1.27451836 1.28811028 1.28811028
+ 1.32620663 1.99519084 1.99519084 2.04340506 2.04340506 2.11368507
+ 2.11368507 2.21913872 2.21913872]  max|de|= 1.29  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    2     ->     0 
+    3     ->     1 
+    1     ->     2 
+    0     ->     3 
+    5     ->     4 
+    4     ->     5 
+   10     ->     7 
+    9     ->     8 
+    7     ->     9 
+    8     ->    10 
+   12     ->    11 
+   11     ->    12 
+davidson 4 75  |r|= 1.13  e= [1.27061732 1.27061732 1.27143976 1.27143976 1.28727071 1.28727071
+ 1.31274372 1.60478949 1.60478949 1.62387351 1.62387351 2.04849651
+ 2.04849651 2.08673551 2.08673551]  max|de|= 1.29  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    5     ->     4 
+    4     ->     5 
+    8     ->     7 
+    7     ->     8 
+   10     ->     9 
+    9     ->    10 
+    6     ->    13 
+   13     ->    14 
+davidson 5 90  |r|= 1.33  e= [1.26930271 1.26930271 1.27143954 1.27143954 1.28520276 1.28520276
+ 1.31118528 1.39272052 1.39272052 1.52007902 1.52007902 2.02195854
+ 2.02195854 2.05247774 2.05823056]  max|de|= 2.05  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+root 2 converged  |r|= 2.37e-12  e= 1.2714395396241145  max|de|= 1.55e-15
+root 3 converged  |r|= 7.18e-13  e= 1.2714395396241156  max|de|= -5.77e-15
+root 11 converged  |r|= 3.81e-09  e= 2.0219585355046847  max|de|= 5.77e-15
+root 12 converged  |r|= 6.42e-09  e= 2.0219585355046865  max|de|= 8.88e-16
+davidson 6 15  |r|= 1.33  e= [1.26930271 1.26930271 1.27143954 1.27143954 1.28520276 1.28520276
+ 1.31118528 1.39272052 1.39272052 1.52007902 1.52007902 2.02195854
+ 2.02195854 2.05247774 2.05823056]  max|de|= -2.24e-14  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+   13     ->    11 
+   11     ->    13 
+davidson 7 26  |r|= 0.556  e= [1.2683339  1.26874272 1.27143954 1.27143954 1.28348658 1.28348658
+ 1.31018132 1.35302012 1.35302012 1.46768549 1.48947253 1.9280883
+ 2.02195854 2.02195854 2.03630078]  max|de|= -0.124  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    3     ->     2 
+    2     ->     3 
+    7     ->    12 
+    8     ->    13 
+davidson 8 37  |r|=  1.5  e= [1.26663747 1.26674399 1.27143954 1.27143954 1.28028978 1.28028978
+ 1.30459375 1.32439498 1.32439498 1.41064598 1.41407616 1.45179338
+ 1.82651949 1.82651949 1.99044397]  max|de|= 1.83  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    3     ->     2 
+    2     ->     3 
+davidson 9 50  |r|= 0.908  e= [1.26633059 1.26656755 1.27143954 1.27143954 1.27933764 1.27933764
+ 1.30247571 1.32005424 1.32005424 1.40243755 1.40931972 1.41377508
+ 1.66065532 1.66065532 1.98169854]  max|de|= -0.166  lindep= 0.974
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    2     ->     3 
+   12     ->     9 
+   13     ->    10 
+    9     ->    12 
+   10     ->    13 
+davidson 10 63  |r|= 0.277  e= [1.26609468 1.26610003 1.27143954 1.27143954 1.27579751 1.27579751
+ 1.29783693 1.30308665 1.30308665 1.35740313 1.35740313 1.37369263
+ 1.39580223 1.39604023 1.94475438]  max|de|= -0.303  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+davidson 11 76  |r|= 0.171  e= [1.26603927 1.26604801 1.27143954 1.27143954 1.27508404 1.27508404
+ 1.29748774 1.30018435 1.30018435 1.34962448 1.34962448 1.37158839
+ 1.39405945 1.39437331 1.92706854]  max|de|= -0.0177  lindep= 0.999
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    3     ->     2 
+    2     ->     3 
+    5     ->     4 
+    4     ->     5 
+    8     ->     6 
+    6     ->     8 
+   10     ->     9 
+    9     ->    10 
+davidson 12 89  |r|= 0.107  e= [1.26603829 1.26603933 1.27143954 1.27143954 1.27152683 1.27152683
+ 1.29256598 1.29256598 1.29745951 1.34003314 1.34003314 1.3714254
+ 1.39402708 1.39406879 1.92136862]  max|de|= 1.27  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    3     ->     2 
+    2     ->     3 
+    5     ->     4 
+    4     ->     5 
+    7     ->     6 
+    6     ->     7 
+   10     ->     9 
+    9     ->    10 
+root 0 converged  |r|= 5.16e-11  e= 1.2660382572301179  max|de|= -2.91e-08
+root 2 converged  |r|= 4.8e-13  e= 1.2714395396241147  max|de|= -9.99e-15
+davidson 13 102  |r|= 0.00972  e= [1.26603826 1.26603839 1.27143954 1.27143954 1.27147846 1.27147846
+ 1.29248519 1.29248519 1.2974442  1.33990591 1.33990591 1.37132528
+ 1.39402626 1.3940323  1.92070038]  max|de|= -0.000668  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+root 12 converged  |r|= 7.95e-11  e= 1.3940262574426114  max|de|= -2.66e-15
+root 14 converged  |r|= 6.05e-09  e= 1.9207003789246013  max|de|= 5.55e-15
+davidson 14 15  |r|= 0.00972  e= [1.26603826 1.26603839 1.27143954 1.27143954 1.27147846 1.27147846
+ 1.29248519 1.29248519 1.2974442  1.33990591 1.33990591 1.37132528
+ 1.39402626 1.3940323  1.92070038]  max|de|= -1.91e-14  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Old state -> New state
+    3     ->     2 
+    2     ->     3 
+    5     ->     4 
+    4     ->     5 
+    7     ->     6 
+    6     ->     7 
+   10     ->     9 
+    9     ->    10 
+root 1 converged  |r|= 0.000203  e= 1.2660382998642734  max|de|= -8.57e-08
+davidson 15 25  |r|= 0.0179  e= [1.26603826 1.2660383  1.27143954 1.27143954 1.27146321 1.27146321
+ 1.29246133 1.29246133 1.29744416 1.33987317 1.33987317 1.37132505
+ 1.39402626 1.39402848 1.92070038]  max|de|= -3.27e-05  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+False
+root 8 converged  |r|= 1.7e-05  e= 1.2974441331053195  max|de|= -3.1e-08
+davidson 16 34  |r|= 0.00239  e= [1.26603826 1.26603827 1.27143954 1.27143954 1.27144154 1.27144154
+ 1.29242794 1.29242794 1.29744413 1.33982851 1.33982851 1.37132481
+ 1.39402626 1.39402691 1.92070038]  max|de|= -4.47e-05  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+False
+root 11 converged  |r|= 5.97e-05  e= 1.3713248126503177  max|de|= -3.58e-10
+davidson 17 42  |r|= 0.0044  e= [1.26603826 1.26603826 1.27143954 1.27143954 1.27144062 1.27144062
+ 1.29242647 1.29242647 1.29744413 1.33982637 1.33982637 1.37132481
+ 1.39402626 1.3940266  1.92070038]  max|de|= -2.14e-06  lindep=    1
+False
+False
+False
+False
+False
+False
+False
+davidson 18 49  |r|= 0.000384  e= [1.26603826 1.26603826 1.27143954 1.27143954 1.27143957 1.27143957
+ 1.29242482 1.29242482 1.29744413 1.33982403 1.33982403 1.37132481
+ 1.39402626 1.39402629 1.92070038]  max|de|= -2.34e-06  lindep= 0.999
+False
+False
+False
+False
+False
+False
+False
+root 4 converged  |r|= 0.000305  e= 1.271439555288117  max|de|= -1.42e-08
+root 5 converged  |r|= 0.000305  e= 1.271439555288123  max|de|= -1.42e-08
+root 13 converged  |r|= 0.000253  e= 1.394026284973779  max|de|= -8e-09
+davidson 19 56  |r|= 0.000553  e= [1.26603826 1.26603826 1.27143954 1.27143954 1.27143956 1.27143956
+ 1.2924248  1.2924248  1.29744413 1.33982398 1.33982398 1.37132481
+ 1.39402626 1.39402628 1.92070038]  max|de|= -4.49e-08  lindep= 0.999
+False
+False
+False
+False
+Old state -> New state
+    3     ->     2 
+    2     ->     3 
+    7     ->     6 
+    6     ->     7 
+root 6 converged  |r|= 4.89e-05  e= 1.292424770982562  max|de|= -2.53e-08
+root 9 converged  |r|= 6.43e-05  e= 1.3398239423986993  max|de|= -4.23e-08
+root 10 converged  |r|= 6.43e-05  e= 1.3398239423987  max|de|= -4.23e-08
+davidson 20 60  |r|= 0.000253  e= [1.26603826 1.26603826 1.27143954 1.27143954 1.27143954 1.27143954
+ 1.29242477 1.29242477 1.29744413 1.33982394 1.33982394 1.37132481
+ 1.39402626 1.39402628 1.92070038]  max|de|= 1.29  lindep=    1
+False
+Old state -> New state
+    3     ->     2 
+    2     ->     3 
+    7     ->     6 
+    6     ->     7 
+davidson 21 61  |r|= 0.000253  e= [1.26603826 1.26603826 1.27143954 1.27143954 1.27143954 1.27143954
+ 1.29242477 1.29242477 1.29744413 1.33982394 1.33982394 1.37132481
+ 1.39402626 1.39402628 1.92070038]  max|de|= 1.29  lindep=    1
+False
+root 6 converged  |r|= 1.12e-05  e= 1.2924247698068647  max|de|= -9.65e-10
+converged 22 62  |r|= 0.000253  e= [1.26603826 1.26603826 1.27143954 1.27143954 1.27143954 1.27143954
+ 1.29242477 1.29242477 1.29744413 1.33982394 1.33982394 1.37132481
+ 1.39402626 1.39402628 1.92070038]  max|de|= -1.78e-09
+EOM-CCSD root 0 E = 1.266038257230115  qpwt = 7.07667e-26  conv = True
+EOM-CCSD root 1 E = 1.266038257686937  qpwt = 6.13694e-24  conv = True
+EOM-CCSD root 2 E = 1.271439539624114  qpwt = 1.08686e-29  conv = True
+EOM-CCSD root 3 E = 1.271439539624118  qpwt = 2.02044e-30  conv = True
+EOM-CCSD root 4 E = 1.27143953963011  qpwt = 3.85286e-27  conv = True
+EOM-CCSD root 5 E = 1.271439540299037  qpwt = 1.54135e-27  conv = True
+EOM-CCSD root 6 E = 1.292424769806865  qpwt = 7.12869e-27  conv = True
+EOM-CCSD root 7 E = 1.292424770982562  qpwt = 2.3443e-27  conv = True
+EOM-CCSD root 8 E = 1.297444133061109  qpwt = 1.73946e-26  conv = True
+EOM-CCSD root 9 E = 1.339823940271024  qpwt = 1.42919e-26  conv = True
+EOM-CCSD root 10 E = 1.339823942398699  qpwt = 3.03941e-27  conv = True
+EOM-CCSD root 11 E = 1.371324812650314  qpwt = 1.24396e-25  conv = True
+EOM-CCSD root 12 E = 1.394026257442608  qpwt = 2.1465e-24  conv = True
+EOM-CCSD root 13 E = 1.394026284973787  qpwt = 3.39482e-22  conv = True
+EOM-CCSD root 14 E = 1.920700378924604  qpwt = 2.52485e-23  conv = True
+    CPU time for EOM-CCSD      2.61 sec, wall time      0.36 sec
+34.450651
+34.450651
+34.597627
+34.597627
+34.597627
+34.597627
+35.168664
+35.168664
+35.305248
+36.458461
+36.458461
+37.315643
+37.933381
+37.933382
+52.264912

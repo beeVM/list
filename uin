@@ -1,0 +1,84 @@
+#INFO: **** input file is /home/noob/t ****
+#INFO: **** input file is /home/noob/test.py ****
+#!/usr/bin/env python
+
+
+import numpy as np
+from pyscf import lib,gto,scf,adc,ucc
+from pyscf.ucc import ucc,ucc_ppt,ucc_cvs
+
+mol = gto.Mole()
+mol.unit = 'Bohr'
+mol.atom ='''
+    O  0.0   0.0             0.0
+    H  0.0   1.429937284    -1.107175113
+    H  0.0  -1.429937284    -1.107175113
+'''
+mol.basis = '6-31G'
+
+
+mol.spin = 0
+mol.charge = 0
+mol.verbose = 5
+mol.symmetry = 1
+#mol.cart = True
+mol.build()
+
+#Hartree-Fock
+
+mf = scf.RHF(mol)
+mf.max_cycle = 1000
+mf.conv_tol = 1e-10
+mf.conv_tol_grad = 1e-9
+mf.verbose = 7
+#mf.chkfile='scf.chk'
+mf.kernel()
+mf.analyze()
+
+##transform RHF to GHF
+nmf = scf.addons.convert_to_ghf(mf)
+#
+##qUCCSD
+mycc = ucc.UnitaryGCCSD(nmf)
+mycc.method = "UCC3-s"
+#mycc.method = "UCC3"
+mycc.verbose = 5
+#mycc.max_cycle = 100
+#mycc.conv_tol = 1e-8
+#mycc.conv_tol_normt = 1e-8
+##mycc.diis_file = 'gquccsd.diis.h5'
+#ecc,t1,t2 = mycc.kernel()
+emp2,mycc.t1,mycc.t2,mycc.t2_2 = mycc.pt_amps()
+#
+#IP
+#mycc.max_cycle = 100
+#mycc.conv_tol = 1e-5
+#mycc.conv_tol_normt = 1e-5
+mycc.verbose = 5
+e,v = mycc.ipccsd_cvs(nroots=15,ncore=2)
+# 
+###EA
+##mycc.max_cycle = 100
+##mycc.conv_tol = 1e-5
+##mycc.conv_tol_normt = 1e-5
+##mycc.verbose = 5
+##e,v = mycc.eaccsd(nroots=100)
+##  
+#
+#for i in e :
+#    print("%f" %(i*27.2113819)) 
+#myadc = adc.ADC(mf)
+#myadc.ncvs = 2
+#myadc.method = "adc(3)"
+#myadc.method_type = "ip"
+#eea,vea,pea,xea = myadc.kernel(nroots=10)
+#myadc.analyze()
+#myadc = adc.ADC(mf)
+#myadc.method = "adc(3)"
+#myadc.method_type = "ip"
+#eea,vea,pea,xea = myadc.kernel(nroots=2)
+
+
+for i in e :
+    print("%f" %(i*27.2113819))
+
